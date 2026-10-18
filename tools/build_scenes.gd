@@ -51,25 +51,31 @@ func _make_tileset() -> TileSet:
 
 
 func _make_player() -> CharacterBody2D:
-	var tex: Texture2D = load("res://assets/characters/player_walk.png")
-	var frames: Array[AtlasTexture] = []
-	for i in 3:
-		var a := AtlasTexture.new()
-		a.atlas = tex
-		a.region = Rect2(i * 64, 0, 64, 64)
-		frames.append(a)
-
+	# tre spritesheet da 3 frame (64x64): passo - centro - passo
+	var sheets := {
+		"side": "res://assets/characters/player_walk.png",   # di lato (verso destra, a sinistra si specchia)
+		"down": "res://assets/characters/player_front.png",  # di fronte (camminata verso il basso)
+		"up": "res://assets/characters/player_back.png",     # di schiena (camminata verso l'alto)
+	}
 	var sf := SpriteFrames.new()
 	sf.remove_animation("default")
-	sf.add_animation("walk")
-	sf.set_animation_speed("walk", 7.0)
-	sf.set_animation_loop("walk", true)
-	for i in [0, 1, 2, 1]:  # ciclo: passo - centro - passo - centro
-		sf.add_frame("walk", frames[i])
-	sf.add_animation("idle")
-	sf.set_animation_speed("idle", 1.0)
-	sf.set_animation_loop("idle", true)
-	sf.add_frame("idle", frames[1])
+	for dir_name: String in sheets:
+		var tex: Texture2D = load(sheets[dir_name])
+		var frames: Array[AtlasTexture] = []
+		for i in 3:
+			var a := AtlasTexture.new()
+			a.atlas = tex
+			a.region = Rect2(i * 64, 0, 64, 64)
+			frames.append(a)
+		sf.add_animation("walk_" + dir_name)
+		sf.set_animation_speed("walk_" + dir_name, 7.0)
+		sf.set_animation_loop("walk_" + dir_name, true)
+		for i in [0, 1, 2, 1]:  # ciclo: passo - centro - passo - centro
+			sf.add_frame("walk_" + dir_name, frames[i])
+		sf.add_animation("idle_" + dir_name)
+		sf.set_animation_speed("idle_" + dir_name, 1.0)
+		sf.set_animation_loop("idle_" + dir_name, true)
+		sf.add_frame("idle_" + dir_name, frames[1])
 
 	var player := CharacterBody2D.new()
 	player.name = "Player"
@@ -78,7 +84,7 @@ func _make_player() -> CharacterBody2D:
 	var sprite := AnimatedSprite2D.new()
 	sprite.name = "AnimatedSprite2D"
 	sprite.sprite_frames = sf
-	sprite.animation = "idle"
+	sprite.animation = "idle_down"
 	# i piedi nello spritesheet stanno a y~48 su 64: sposto lo sprite cosi' l'origine del nodo = piedi
 	sprite.offset = Vector2(0, -16)
 	player.add_child(sprite)
