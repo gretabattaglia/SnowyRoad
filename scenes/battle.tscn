@@ -3,4 +3,5 @@
 [ext_resource type="Script" path="res://scripts/battle.gd" id="1_battle"]
 
 [node name="Battle" type="Node2D"]
+position = Vector2(0, 60)
 script = ExtResource("1_battle")
